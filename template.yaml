@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: album-server
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 5
+
+Resources:
+  AlbumApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Cors:
+        AllowMethods: "'POST, GET, DELETE'"
+        AllowHeaders: "'access-control-allow-origin,content-type'"
+        AllowOrigin: "'*'"
+      StageName: Prod
+  ListTagsFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: application/ListTags
+      Handler: listTags
+      Policies:
+        - arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess
+      Runtime: go1.x
+      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Events:
+        CatchAll:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /tags
+            Method: GET
+            RestApiId: !Ref AlbumApi
+  tagTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: UserName
+          AttributeType: S
+        - AttributeName: TagName
+          AttributeType: S
+      KeySchema:
+        - AttributeName: UserName
+          KeyType: HASH
+        - AttributeName: TagName
+          KeyType: RANGE
+      TableName: Tag
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+  taggedImageTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: UserTagName
+          AttributeType: S
+        - AttributeName: ID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: UserTagName
+          KeyType: HASH
+        - AttributeName: ID
+          KeyType: RANGE
+      TableName: TaggedImage
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  ListTagsFunction:
+    Description: "ListTagsFunction ARN"
+    Value: !GetAtt ListTagsFunction.Arn
+  ListTagsFunctionIamRole:
+    Description: "Implicit IAM Role created for ListTagsFunction"
+    Value: !GetAtt ListTagsFunctionRole.Arn

@@ -1,0 +1,101 @@
+openapi: 3.0.0
+info:
+  title: Album API
+  version: 1.0.0
+  description: ""
+paths:
+  /tags:
+    get:
+      operationId: ""
+      summary: ListTags
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json:
+              examples: {}
+              schema:
+                $ref: "#/components/schemas/GetTagsResponse"
+            application/xml:
+              schema:
+                type: object
+                properties: {}
+      description: Get all tags
+    parameters: []
+  /pictures:
+    get:
+      operationId: ""
+      summary: ListPictures
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json:
+              examples: {}
+              schema:
+                $ref: "#/components/schemas/GetPicturesResponse"
+      description: List all pictures
+      parameters:
+        - schema:
+            type: array
+          in: query
+          name: tag
+          description: tag
+          required: true
+    parameters: []
+    post:
+      summary: PostPicture
+      operationId: ""
+      responses:
+        "200":
+          description: OK
+      description: ""
+components:
+  schemas:
+    GetTagsResponse:
+      title: GetTagsResponse
+      type: object
+      description: ""
+      properties:
+        tags:
+          type: array
+          description: List of tags
+          items:
+            type: string
+    PostPicturesRequest:
+      title: PostPicturesRequest
+      type: object
+      properties:
+        tags:
+          type: array
+          minItems: 1
+          description: List of tags
+          items:
+            type: string
+        picture:
+          type: string
+          description: Base64Encoded picture
+      required:
+        - tags
+        - picture
+    GetPicturesResponse:
+      title: GetPicturesResponse
+      type: object
+      properties:
+        pictures:
+          type: array
+          description: List of pictures
+          items:
+            $ref: "#/components/schemas/PicturesResponseItem"
+    PicturesResponseItem:
+      title: PicturesResponseItem
+      type: object
+      properties:
+        tags:
+          type: array
+          description: List of tags
+          items:
+            type: string
+        picture:
+          type: string
+          description: Base64encoded picture
