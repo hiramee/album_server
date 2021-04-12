@@ -50,3 +50,17 @@ func (repo *TagRepository) Update(domain *domain.Tag) error {
 	}
 	return nil
 }
+
+func (repo *TagRepository) BatchUpdate(domains []domain.Tag) error {
+	sliceSize := len(domains)
+	for i := 0; i < sliceSize; i += 25 {
+		end := i + 25
+		if sliceSize < end {
+			end = sliceSize
+		}
+		if _, err := repo.table.Batch("UserName", "TagName").Write().Put(domains[i:end]).Run(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
