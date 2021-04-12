@@ -2,20 +2,20 @@ openapi: 3.0.0
 info:
   title: Album API
   version: 1.0.0
-  description: ""
+  description: ''
 paths:
   /tags:
     get:
-      operationId: ""
+      operationId: ''
       summary: ListTags
       responses:
-        "200":
+        '200':
           description: 200 response
           content:
             application/json:
               examples: {}
               schema:
-                $ref: "#/components/schemas/GetTagsResponse"
+                $ref: '#/components/schemas/GetTagsResponse'
             application/xml:
               schema:
                 type: object
@@ -24,16 +24,16 @@ paths:
     parameters: []
   /pictures:
     get:
-      operationId: ""
+      operationId: ''
       summary: ListPictures
       responses:
-        "200":
+        '200':
           description: 200 response
           content:
             application/json:
               examples: {}
               schema:
-                $ref: "#/components/schemas/GetPicturesResponse"
+                $ref: '#/components/schemas/GetPicturesResponse'
       description: List all pictures
       parameters:
         - schema:
@@ -45,17 +45,22 @@ paths:
     parameters: []
     post:
       summary: PostPicture
-      operationId: ""
+      operationId: ''
       responses:
-        "200":
+        '200':
           description: OK
-      description: ""
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostPicturesRequest'
 components:
   schemas:
     GetTagsResponse:
       title: GetTagsResponse
       type: object
-      description: ""
+      description: ''
       properties:
         tags:
           type: array
@@ -75,9 +80,13 @@ components:
         picture:
           type: string
           description: Base64Encoded picture
+        ext:
+          type: string
+          description: extension of file
       required:
         - tags
         - picture
+        - ext
     GetPicturesResponse:
       title: GetPicturesResponse
       type: object
@@ -86,7 +95,7 @@ components:
           type: array
           description: List of pictures
           items:
-            $ref: "#/components/schemas/PicturesResponseItem"
+            $ref: '#/components/schemas/PicturesResponseItem'
     PicturesResponseItem:
       title: PicturesResponseItem
       type: object
@@ -99,3 +108,6 @@ components:
         picture:
           type: string
           description: Base64encoded picture
+        fileName:
+          type: string
+          description: fileName

@@ -20,11 +20,27 @@ type GetTagsResponse struct {
 // PicturesResponseItem defines model for PicturesResponseItem.
 type PicturesResponseItem struct {
 
+	// fileName
+	FileName *string `json:"fileName,omitempty"`
+
 	// Base64encoded picture
 	Picture *string `json:"picture,omitempty"`
 
 	// List of tags
 	Tags *[]string `json:"tags,omitempty"`
+}
+
+// PostPicturesRequest defines model for PostPicturesRequest.
+type PostPicturesRequest struct {
+
+	// extension of file
+	Ext string `json:"ext"`
+
+	// Base64Encoded picture
+	Picture string `json:"picture"`
+
+	// List of tags
+	Tags []string `json:"tags"`
 }
 
 // GetPicturesParams defines parameters for GetPictures.
@@ -33,3 +49,9 @@ type GetPicturesParams struct {
 	// tag
 	Tag []interface{} `json:"tag"`
 }
+
+// PostPicturesJSONBody defines parameters for PostPictures.
+type PostPicturesJSONBody PostPicturesRequest
+
+// PostPicturesJSONRequestBody defines body for PostPictures for application/json ContentType.
+type PostPicturesJSONRequestBody PostPicturesJSONBody
