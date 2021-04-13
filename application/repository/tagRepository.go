@@ -37,13 +37,6 @@ func (repo *TagRepository) ListAll(userName string) ([]domain.Tag, error) {
 	return results, nil
 }
 
-func (repo *TagRepository) DeleteByIdAndCategory(id int64, category string) error {
-	if err := repo.table.Delete("ID", id).Range("Category", category).Run(); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (repo *TagRepository) Update(domain *domain.Tag) error {
 	if err := repo.table.Put(domain).Run(); err != nil {
 		return err
@@ -58,7 +51,12 @@ func (repo *TagRepository) BatchUpdate(domains []domain.Tag) error {
 		if sliceSize < end {
 			end = sliceSize
 		}
-		if _, err := repo.table.Batch("UserName", "TagName").Write().Put(domains[i:end]).Run(); err != nil {
+		current := domains[i:end]
+		items := make([]interface{}, len(current))
+		for i, e := range current {
+			items[i] = e
+		}
+		if _, err := repo.table.Batch("UserName", "TagName").Write().Put(items...).Run(); err != nil {
 			return err
 		}
 	}

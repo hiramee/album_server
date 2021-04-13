@@ -39,6 +39,23 @@ Resources:
             Path: /tags
             Method: GET
             RestApiId: !Ref AlbumApi
+  PostPictureFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: application/PostPicture
+      Handler: postPicture
+      Policies:
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+      Runtime: go1.x
+      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Events:
+        CatchAll:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /pictures
+            Method: POST
+            RestApiId: !Ref AlbumApi
   tagTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -84,3 +101,9 @@ Outputs:
   ListTagsFunctionIamRole:
     Description: "Implicit IAM Role created for ListTagsFunction"
     Value: !GetAtt ListTagsFunctionRole.Arn
+  PostPictureFunction:
+    Description: "PostPictureFunction ARN"
+    Value: !GetAtt PostPictureFunction.Arn
+  PostPictureFunctionIamRole:
+    Description: "Implicit IAM Role created for PostPictureFunction"
+    Value: !GetAtt PostPictureFunctionRole.Arn

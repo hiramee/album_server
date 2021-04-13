@@ -22,24 +22,14 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 
 	TagUsecase := usecase.NewTagUsecase()
-	results, err := TagUsecase.ListAll(*userName)
-
-	if err != nil {
+	if err := TagUsecase.CreateIfAbsent(*userName, req.Tags); err != nil {
 		return events.APIGatewayProxyResponse{
 			Headers: headers,
 		}, err
 	}
-	response := new(openapi.GetTagsResponse)
-	var tags []string
-	for _, e := range results {
-		tags = append(tags, e.TagName)
-	}
-	response.Tags = &tags
-	jsonBytes, _ := json.Marshal(response)
 
 	return events.APIGatewayProxyResponse{
 		Headers:    headers,
-		Body:       string(jsonBytes),
 		StatusCode: 200,
 	}, nil
 }
