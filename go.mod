@@ -4,7 +4,7 @@ require (
 	github.com/deepmap/oapi-codegen v1.6.0 // indirect
 	github.com/go-openapi/analysis v0.20.1 // indirect
 	github.com/go-swagger/go-swagger v0.27.0 // indirect
-	github.com/google/uuid v1.2.0 // indirect
+	github.com/google/uuid v1.2.0
 	github.com/guregu/dynamo v1.10.2
 	github.com/pelletier/go-toml v1.9.0 // indirect
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect

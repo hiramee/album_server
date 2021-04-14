@@ -4,6 +4,7 @@ import (
 	"album-server/application/usecase"
 	"album-server/openapi"
 	"album-server/util"
+	"encoding/base64"
 	"encoding/json"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -21,12 +22,20 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		}, err
 	}
 
-	TagUsecase := usecase.NewTagUsecase()
-	if err := TagUsecase.CreateIfAbsent(*userName, req.Tags); err != nil {
+	tagUsecase := usecase.NewTagUsecase()
+	if err := tagUsecase.CreateIfAbsent(*userName, req.Tags); err != nil {
 		return events.APIGatewayProxyResponse{
 			Headers: headers,
 		}, err
 	}
+	taggedImageUsecase := usecase.NewTaggedImageUsecase()
+	decoded, err := base64.StdEncoding.DecodeString(req.Picture)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			Headers: headers,
+		}, err
+	}
+	taggedImageUsecase.Create(*userName, req.Tags, req.Ext, decoded)
 
 	return events.APIGatewayProxyResponse{
 		Headers:    headers,

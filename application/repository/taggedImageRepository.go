@@ -50,3 +50,22 @@ func (repo *TaggedImageRepository) Update(domain *domain.TaggedImage) error {
 	}
 	return nil
 }
+
+func (repo *TaggedImageRepository) BatchUpdate(domains []domain.TaggedImage) error {
+	sliceSize := len(domains)
+	for i := 0; i < sliceSize; i += 25 {
+		end := i + 25
+		if sliceSize < end {
+			end = sliceSize
+		}
+		current := domains[i:end]
+		items := make([]interface{}, len(current))
+		for i, e := range current {
+			items[i] = e
+		}
+		if _, err := repo.table.Batch("UserTagName", "ID").Write().Put(items...).Run(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
