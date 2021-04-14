@@ -47,7 +47,7 @@ type PostPicturesRequest struct {
 type GetPicturesParams struct {
 
 	// tag
-	Tag []interface{} `json:"tag"`
+	Tag []string `json:"tag"`
 }
 
 // PostPicturesJSONBody defines parameters for PostPictures.

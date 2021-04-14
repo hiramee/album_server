@@ -38,10 +38,13 @@ paths:
       parameters:
         - schema:
             type: array
+            items:
+              type: string
           in: query
           name: tag
           description: tag
           required: true
+          style: form
     parameters: []
     post:
       summary: PostPicture
