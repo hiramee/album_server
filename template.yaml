@@ -8,7 +8,7 @@ Globals:
     Timeout: 5
   Api:
     Auth:
-      AddDefaultAuthorizerToCorsPreflight: true
+      AddDefaultAuthorizerToCorsPreflight: false
       DefaultAuthorizer: AlbumApiAuthorizer
       Authorizers:
         AlbumApiAuthorizer:
@@ -16,7 +16,7 @@ Globals:
           AuthType: "COGNITO_USER_POOLS"
     Cors:
       AllowMethods: "'POST, GET, DELETE'"
-      AllowHeaders: "'access-control-allow-origin,content-type'"
+      AllowHeaders: "'access-control-allow-origin,content-type,Authorization'"
       AllowOrigin: "'*'"
 Resources:
   AlbumApi:

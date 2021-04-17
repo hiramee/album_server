@@ -13,13 +13,14 @@ paths:
           description: 200 response
           content:
             application/json:
-              examples: {}
               schema:
                 $ref: '#/components/schemas/GetTagsResponse'
             application/xml:
               schema:
                 type: object
                 properties: {}
+        '400':
+          description: Bad Request
       description: Get all tags
     parameters: []
   /pictures:
@@ -31,7 +32,6 @@ paths:
           description: 200 response
           content:
             application/json:
-              examples: {}
               schema:
                 $ref: '#/components/schemas/GetPicturesResponse'
       description: List all pictures
@@ -52,6 +52,8 @@ paths:
       responses:
         '200':
           description: OK
+        '400':
+          description: Bad Request
       description: ''
       requestBody:
         content:
