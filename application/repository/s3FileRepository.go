@@ -2,6 +2,7 @@ package repository
 
 import (
 	"bytes"
+	"io"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -29,4 +30,15 @@ func (repo *S3FileRepository) Upload(objectKey string, data []byte) error {
 		return err
 	}
 	return nil
+}
+
+func (repo *S3FileRepository) Download(objectKey string) ([]byte, error) {
+	req := new(s3.GetObjectInput)
+	res, err := repo.cli.GetObject(req.SetBucket(repo.bucketName).SetKey(objectKey))
+	if err != nil {
+		return nil, err
+	}
+	buf := new(bytes.Buffer)
+	io.Copy(buf, res.Body)
+	return buf.Bytes(), nil
 }

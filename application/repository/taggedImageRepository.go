@@ -63,9 +63,30 @@ func (repo *TaggedImageRepository) BatchUpdate(domains []domain.TaggedImage) err
 		for i, e := range current {
 			items[i] = e
 		}
-		if _, err := repo.table.Batch("UserTagName", "ID").Write().Put(items...).Run(); err != nil {
+		if _, err := repo.table.Batch("ID", "UserTagName").Write().Put(items...).Run(); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func (repo *TaggedImageRepository) BatchGet(userName string, tagNames []string) ([]domain.TaggedImage, error) {
+	// TODO: 件数制限について検討
+	idKeyImageMap := make(map[string]domain.TaggedImage)
+	for _, e := range tagNames {
+		var results []domain.TaggedImage
+		if err := repo.table.Get("UserTagName", userName+e).Index("GSI-UserTagName").All(&results); err != nil {
+			return nil, err
+		}
+		for _, e := range results {
+			if _, ok := idKeyImageMap[e.ID]; !ok {
+				idKeyImageMap[e.ID] = e
+			}
+		}
+	}
+	var response []domain.TaggedImage
+	for _, e := range idKeyImageMap {
+		response = append(response, e)
+	}
+	return response, nil
 }

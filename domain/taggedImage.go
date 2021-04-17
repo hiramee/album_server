@@ -1,9 +1,10 @@
 package domain
 
 type TaggedImage struct {
-	UserTagName string // Hash key, a.k.a. partition key
-	ID          string // Range key, a.k.a. sort key
-	ObjectKey   string `dynamo:",omitempty"`
+	ID          string   `dynamo:"ID,hash"`
+	UserTagName string   `dynamo:"UserTagName,range" index:"GSI-UserTagName"`
+	ObjectKey   string   `dynamo:",omitempty"`
+	Tags        []string `dynamo:",omitempty"`
 }
 
 func NewTaggedImage(userName string, tagName string, id string, objectKey string) *TaggedImage {
@@ -11,6 +12,9 @@ func NewTaggedImage(userName string, tagName string, id string, objectKey string
 	taggedImage.UserTagName = userName + tagName
 	taggedImage.ID = id
 	taggedImage.ObjectKey = objectKey
+	var tagSlice []string
+	tagSlice = append(tagSlice, tagName)
+	taggedImage.Tags = tagSlice
 	return taggedImage
 }
 
@@ -21,6 +25,7 @@ func NewTaggedImageSlice(userName string, tagNames []string, id string, objectKe
 		taggedImage.UserTagName = userName + e
 		taggedImage.ID = id
 		taggedImage.ObjectKey = objectKey
+		taggedImage.Tags = tagNames
 		taggedImageSlice[i] = *taggedImage
 	}
 	return taggedImageSlice
