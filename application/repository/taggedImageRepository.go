@@ -29,9 +29,9 @@ func NewTaggedImageRepository() *TaggedImageRepository {
 	return repo
 }
 
-func (repo *TaggedImageRepository) ListAll(category string) ([]domain.TaggedImage, error) {
+func (repo *TaggedImageRepository) ListAllById(id string, userName string) ([]domain.TaggedImage, error) {
 	var results []domain.TaggedImage
-	if err := repo.table.Scan().Filter("'Category' = ?", category).All(&results); err != nil {
+	if err := repo.table.Get("ID", id).Range("UserTagName", dynamo.Greater, userName).All(&results); err != nil {
 		return nil, err
 	}
 	return results, nil
@@ -89,4 +89,23 @@ func (repo *TaggedImageRepository) BatchGet(userName string, tagNames []string) 
 		response = append(response, e)
 	}
 	return response, nil
+}
+
+func (repo *TaggedImageRepository) BatchDelete(id string, userName string, tags []string) error {
+	sliceSize := len(tags)
+	for i := 0; i < sliceSize; i += 25 {
+		end := i + 25
+		if sliceSize < end {
+			end = sliceSize
+		}
+		current := tags[i:end]
+		items := make([]dynamo.Keyed, len(current))
+		for i, e := range current {
+			items[i] = dynamo.Keys{id, userName + e}
+		}
+		if _, err := repo.table.Batch("ID", "UserTagName").Write().Delete(items...).Run(); err != nil {
+			return err
+		}
+	}
+	return nil
 }

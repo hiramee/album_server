@@ -24,14 +24,6 @@ func NewTaggedImageUsecase() *TaggedImageUsecase {
 	return usecase
 }
 
-func (usecase *TaggedImageUsecase) ListAll(category string) ([]domain.TaggedImage, error) {
-	return usecase.repo.ListAll(category)
-}
-
-func (usecase *TaggedImageUsecase) DeleteByIdAndCategory(id int64, category string) error {
-	return usecase.repo.DeleteByIdAndCategory(id, category)
-}
-
 func (usecase *TaggedImageUsecase) Create(userName string, tagNames []string, ext string, data []byte) error {
 	uuid, err := usecase.uuid()
 	if err != nil {
@@ -85,4 +77,41 @@ func (usecase *TaggedImageUsecase) ListByTagNames(userName string, tagNameSlice 
 	response.Pictures = &picturesResponseItem
 
 	return response, nil
+}
+func (usecase *TaggedImageUsecase) Update(userName string, id string, tagNames []string) error {
+	current, err := usecase.repo.ListAllById(id, userName)
+	if err != nil {
+		return err
+	}
+	var objectKey string
+	currentTagNames := make([]string, len(current))
+	for i, e := range current {
+		objectKey = e.ObjectKey
+		prefixCount := utf8.RuneCountInString(userName) + 1 // userName/fileName => fileName
+		currentTagNames[i] = string([]rune(e.UserTagName)[prefixCount:])
+	}
+	deleteTarget := findDiff(currentTagNames, tagNames)
+	if err := usecase.repo.BatchDelete(id, userName, deleteTarget); err != nil {
+		return err
+	}
+	if err := usecase.repo.BatchUpdate(domain.NewTaggedImageSlice(userName, tagNames, id, objectKey)); err != nil {
+		return err
+	}
+	return nil
+}
+
+func findDiff(a []string, b []string) []string {
+	var amap map[string]bool
+	for _, e := range a {
+		if !amap[e] {
+			amap[e] = true
+		}
+	}
+	var diff []string
+	for _, e := range b {
+		if !amap[e] {
+			diff = append(diff, e)
+		}
+	}
+	return diff
 }

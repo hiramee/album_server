@@ -15,7 +15,7 @@ Globals:
           UserPoolArn: !Sub "arn:aws:cognito-idp:ap-northeast-1:${AWS::AccountId}:userpool/${AWS::Region}_azc25x1AV"
           AuthType: "COGNITO_USER_POOLS"
     Cors:
-      AllowMethods: "'POST, GET, DELETE'"
+      AllowMethods: "'POST, GET, DELETE, PUT'"
       AllowHeaders: "'access-control-allow-origin,content-type,Authorization'"
       AllowOrigin: "'*'"
 Resources:
@@ -72,6 +72,22 @@ Resources:
           Properties:
             Path: /pictures
             Method: GET
+            RestApiId: !Ref AlbumApi
+  PutPictureFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: application/PutPicture
+      Handler: putPicture
+      Policies:
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+      Runtime: go1.x
+      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Events:
+        CatchAll:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /pictures/{id}
+            Method: PUT
             RestApiId: !Ref AlbumApi
   tagTable:
     Type: AWS::DynamoDB::Table
@@ -144,3 +160,9 @@ Outputs:
   ListPicturesFunctionIamRole:
     Description: "Implicit IAM Role created for ListPicturesFunction"
     Value: !GetAtt ListPicturesFunctionRole.Arn
+  PutPictureFunction:
+    Description: "PutPictureFunction ARN"
+    Value: !GetAtt PutPictureFunction.Arn
+  PutPictureFunctionIamRole:
+    Description: "Implicit IAM Role created for PutPictureFunction"
+    Value: !GetAtt PutPictureFunctionRole.Arn
