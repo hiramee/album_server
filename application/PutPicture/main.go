@@ -12,7 +12,7 @@ import (
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	userName, _ := util.GetUsernameFromHeader(request)
-	id := request.PathParameters[id]
+	id := request.PathParameters["id"]
 	req := new(openapi.PutPictureRequest)
 
 	headers := map[string]string{"Access-Control-Allow-Origin": "*"}

@@ -37,13 +37,6 @@ func (repo *TagRepository) ListAll(userName string) ([]domain.Tag, error) {
 	return results, nil
 }
 
-func (repo *TagRepository) Update(domain *domain.Tag) error {
-	if err := repo.table.Put(domain).Run(); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (repo *TagRepository) BatchUpdate(domains []domain.Tag) error {
 	sliceSize := len(domains)
 	for i := 0; i < sliceSize; i += 25 {

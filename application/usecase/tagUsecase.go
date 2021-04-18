@@ -20,10 +20,6 @@ func (usecase *TagUsecase) ListAll(userName string) ([]domain.Tag, error) {
 	return usecase.repo.ListAll(userName)
 }
 
-func (usecase *TagUsecase) Update(domain *domain.Tag) error {
-	return usecase.repo.Update(domain)
-}
-
 func (usecase *TagUsecase) CreateIfAbsent(userName string, tags []string) error {
 	oldTags, err := usecase.repo.ListAll(userName)
 	if err != nil {
