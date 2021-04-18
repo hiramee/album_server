@@ -71,9 +71,15 @@ func (usecase *TaggedImageUsecase) ListByTagNames(userName string, tagNameSlice 
 		if err != nil {
 			return nil, err
 		}
+		tags := make([]string, len(e.Tags))
+		for itag, etag := range e.Tags {
+			tags[itag] = etag
+		}
+		id := e.ID
 		dataStr := base64.StdEncoding.EncodeToString(data)
+		picturesResponseItem[i].Id = &id
 		picturesResponseItem[i].FileName = &fileName
-		picturesResponseItem[i].Tags = &e.Tags
+		picturesResponseItem[i].Tags = &tags
 		picturesResponseItem[i].Picture = &dataStr
 	}
 	response.Pictures = &picturesResponseItem
