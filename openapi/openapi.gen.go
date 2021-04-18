@@ -23,6 +23,9 @@ type PicturesResponseItem struct {
 	// fileName
 	FileName *string `json:"fileName,omitempty"`
 
+	// ID
+	Id *string `json:"id,omitempty"`
+
 	// Base64encoded picture
 	Picture *string `json:"picture,omitempty"`
 
@@ -43,6 +46,16 @@ type PostPicturesRequest struct {
 	Tags []string `json:"tags"`
 }
 
+// PutPictureRequest defines model for PutPictureRequest.
+type PutPictureRequest struct {
+
+	// ID
+	Id string `json:"id"`
+
+	// List of tags
+	Tags []string `json:"tags"`
+}
+
 // GetPicturesParams defines parameters for GetPictures.
 type GetPicturesParams struct {
 
@@ -53,5 +66,11 @@ type GetPicturesParams struct {
 // PostPicturesJSONBody defines parameters for PostPictures.
 type PostPicturesJSONBody PostPicturesRequest
 
+// PutPicturesIdJSONBody defines parameters for PutPicturesId.
+type PutPicturesIdJSONBody PutPictureRequest
+
 // PostPicturesJSONRequestBody defines body for PostPictures for application/json ContentType.
 type PostPicturesJSONRequestBody PostPicturesJSONBody
+
+// PutPicturesIdJSONRequestBody defines body for PutPicturesId for application/json ContentType.
+type PutPicturesIdJSONRequestBody PutPicturesIdJSONBody
