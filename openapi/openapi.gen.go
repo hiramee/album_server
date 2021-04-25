@@ -49,9 +49,6 @@ type PostPicturesRequest struct {
 // PutPictureRequest defines model for PutPictureRequest.
 type PutPictureRequest struct {
 
-	// ID
-	Id string `json:"id"`
-
 	// List of tags
 	Tags []string `json:"tags"`
 }

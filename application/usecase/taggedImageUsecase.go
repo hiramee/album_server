@@ -101,7 +101,7 @@ func (usecase *TaggedImageUsecase) Update(userName string, id string, tagNames [
 }
 
 func findDiff(a []string, b []string) []string {
-	var amap map[string]bool
+	amap := make(map[string]bool)
 	for _, e := range a {
 		if !amap[e] {
 			amap[e] = true

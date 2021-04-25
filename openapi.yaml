@@ -154,9 +154,6 @@ components:
       title: PutPictureRequest
       type: object
       properties:
-        id:
-          type: string
-          description: ID
         tags:
           type: array
           description: List of tags
