@@ -42,3 +42,12 @@ func (repo *S3FileRepository) Download(objectKey string) ([]byte, error) {
 	io.Copy(buf, res.Body)
 	return buf.Bytes(), nil
 }
+
+func (repo *S3FileRepository) Delete(objectKey string) error {
+	req := new(s3.DeleteObjectInput)
+	_, err := repo.cli.DeleteObject(req.SetBucket(repo.bucketName).SetKey(objectKey))
+	if err != nil {
+		return err
+	}
+	return nil
+}

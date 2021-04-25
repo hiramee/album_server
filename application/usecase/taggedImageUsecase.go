@@ -5,6 +5,7 @@ import (
 	"album-server/domain"
 	"album-server/openapi"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"unicode/utf8"
 
@@ -83,6 +84,9 @@ func (usecase *TaggedImageUsecase) Update(userName string, id string, tagNames [
 	if err != nil {
 		return err
 	}
+	if len(current) == 0 {
+		return errors.New("File already deleted")
+	}
 	var objectKey string
 	currentTagNames := make([]string, len(current))
 	for i, e := range current {
@@ -114,4 +118,52 @@ func findDiff(a []string, b []string) []string {
 		}
 	}
 	return diff
+}
+
+func (usecase *TaggedImageUsecase) Delete(userName string, id string) error {
+	current, err := usecase.repo.ListAllById(id, userName)
+	if err != nil {
+		return err
+	}
+	if len(current) == 0 {
+		return errors.New("File is already deleted")
+	}
+	tags := current[0].Tags
+	if err := usecase.repo.BatchDelete(id, userName, tags); err != nil {
+		return err
+	}
+	objectKey := current[0].ObjectKey
+	if err := usecase.s3Repo.Delete(objectKey); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (usecase *TaggedImageUsecase) ValidateDeleteTags(userName string, tagNameSlice []string) ([]string, error) {
+	taggedImages, err := usecase.repo.BatchGet(userName, tagNameSlice)
+	if err != nil {
+		return nil, err
+	}
+	if len(taggedImages) == 0 {
+		return nil, nil
+	}
+	var usedTags []string
+	for _, e := range taggedImages {
+		usedTags = append(usedTags, e.Tags...)
+	}
+	uniqueUsedTags := unique(usedTags)
+
+	return uniqueUsedTags, nil
+}
+
+func unique(a []string) []string {
+	amap := make(map[string]bool)
+	var uniqueSlice []string
+	for _, e := range a {
+		if !amap[e] {
+			uniqueSlice = append(uniqueSlice, e)
+			amap[e] = true
+		}
+	}
+	return uniqueSlice
 }

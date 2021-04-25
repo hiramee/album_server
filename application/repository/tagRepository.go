@@ -55,3 +55,22 @@ func (repo *TagRepository) BatchUpdate(domains []domain.Tag) error {
 	}
 	return nil
 }
+
+func (repo *TagRepository) BatchDelete(userName string, tags []string) error {
+	sliceSize := len(tags)
+	for i := 0; i < sliceSize; i += 25 {
+		end := i + 25
+		if sliceSize < end {
+			end = sliceSize
+		}
+		current := tags[i:end]
+		items := make([]dynamo.Keyed, len(current))
+		for i, e := range current {
+			items[i] = dynamo.Keys{userName, e}
+		}
+		if _, err := repo.table.Batch("UserName", "TagName").Write().Delete(items...).Run(); err != nil {
+			return err
+		}
+	}
+	return nil
+}

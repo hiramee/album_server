@@ -51,3 +51,7 @@ func findNewTags(oldTags []domain.Tag, tags []string) []string {
 	}
 	return newTags
 }
+
+func (usecase *TagUsecase) Delete(userName string, tags []string) error {
+	return usecase.repo.BatchDelete(userName, tags)
+}

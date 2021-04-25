@@ -39,6 +39,22 @@ Resources:
             Path: /tags
             Method: GET
             RestApiId: !Ref AlbumApi
+  DeleteTagsFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: application/DeleteTags
+      Handler: deleteTags
+      Policies:
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+      Runtime: go1.x
+      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Events:
+        CatchAll:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /tags/delete
+            Method: POST
+            RestApiId: !Ref AlbumApi
   PostPictureFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -88,6 +104,23 @@ Resources:
           Properties:
             Path: /pictures/{id}
             Method: PUT
+            RestApiId: !Ref AlbumApi
+  DeletePictureFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: application/DeletePicture
+      Handler: deletePicture
+      Policies:
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+      Runtime: go1.x
+      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Events:
+        CatchAll:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /pictures/{id}
+            Method: Delete
             RestApiId: !Ref AlbumApi
   tagTable:
     Type: AWS::DynamoDB::Table
@@ -148,6 +181,12 @@ Outputs:
   ListTagsFunctionIamRole:
     Description: "Implicit IAM Role created for ListTagsFunction"
     Value: !GetAtt ListTagsFunctionRole.Arn
+  DeleteTagsFunction:
+    Description: "DeleteTagsFunction ARN"
+    Value: !GetAtt DeleteTagsFunction.Arn
+  DeleteTagsFunctionIamRole:
+    Description: "Implicit IAM Role created for DeleteTagsFunction"
+    Value: !GetAtt DeleteTagsFunctionRole.Arn
   PostPictureFunction:
     Description: "PostPictureFunction ARN"
     Value: !GetAtt PostPictureFunction.Arn
@@ -166,3 +205,9 @@ Outputs:
   PutPictureFunctionIamRole:
     Description: "Implicit IAM Role created for PutPictureFunction"
     Value: !GetAtt PutPictureFunctionRole.Arn
+  DeletePictureFunction:
+    Description: "DeletePictureFunction ARN"
+    Value: !GetAtt DeletePictureFunction.Arn
+  DeletePictureFunctionIamRole:
+    Description: "Implicit IAM Role created for DeletePictureFunction"
+    Value: !GetAtt DeletePictureFunctionRole.Arn
