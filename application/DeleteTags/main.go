@@ -14,38 +14,26 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	userName, _ := util.GetUsernameFromHeader(request)
 	req := new(openapi.DeleteTagsRequest)
 
-	headers := map[string]string{"Access-Control-Allow-Origin": "*"}
 	if err := json.Unmarshal([]byte(request.Body), req); err != nil {
-		return events.APIGatewayProxyResponse{
-			Headers: headers,
-		}, err
+		return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
 	}
 
 	taggedImageUsecase := usecase.NewTaggedImageUsecase()
 	usedTags, err := taggedImageUsecase.ValidateDeleteTags(*userName, *req.Tags)
 	if err != nil {
-		return events.APIGatewayProxyResponse{
-			Headers: headers,
-		}, err
+		return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
 	} else if len(usedTags) != 0 {
 		message := "Some Tags are now used. Tags:"
 		for _, e := range usedTags {
 			message += e + " "
 		}
-		return events.APIGatewayProxyResponse{
-			Headers:    headers,
-			Body:       message,
-			StatusCode: 400,
-		}, err
+		return util.CreateErrorResponse(message, util.VALIDATION_ERROR, err)
 	}
 
 	tagUsecase := usecase.NewTagUsecase()
 	tagUsecase.Delete(*userName, *req.Tags)
 
-	return events.APIGatewayProxyResponse{
-		Headers:    headers,
-		StatusCode: 200,
-	}, nil
+	return util.CreateOKResponse(nil)
 }
 
 func main() {

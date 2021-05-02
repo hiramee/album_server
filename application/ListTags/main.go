@@ -4,7 +4,6 @@ import (
 	"album-server/application/usecase"
 	"album-server/openapi"
 	"album-server/util"
-	"encoding/json"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -15,12 +14,9 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	userName, _ := util.GetUsernameFromHeader(request)
 
 	results, err := TagUsecase.ListAll(*userName)
-	headers := map[string]string{"Access-Control-Allow-Origin": "*"}
 
 	if err != nil {
-		return events.APIGatewayProxyResponse{
-			Headers: headers,
-		}, err
+		return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
 	}
 	response := new(openapi.GetTagsResponse)
 	var tags []string
@@ -28,13 +24,8 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		tags = append(tags, e.TagName)
 	}
 	response.Tags = &tags
-	jsonBytes, _ := json.Marshal(response)
 
-	return events.APIGatewayProxyResponse{
-		Headers:    headers,
-		Body:       string(jsonBytes),
-		StatusCode: 200,
-	}, nil
+	return util.CreateOKResponse(response)
 }
 
 func main() {

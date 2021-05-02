@@ -12,15 +12,10 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	userName, _ := util.GetUsernameFromHeader(request)
 	id := request.PathParameters["id"]
 
-	headers := map[string]string{"Access-Control-Allow-Origin": "*"}
-
 	taggedImageUsecase := usecase.NewTaggedImageUsecase()
 	taggedImageUsecase.Delete(*userName, id)
 
-	return events.APIGatewayProxyResponse{
-		Headers:    headers,
-		StatusCode: 200,
-	}, nil
+	return util.CreateOKResponse(nil)
 }
 
 func main() {

@@ -3,7 +3,6 @@ package main
 import (
 	"album-server/application/usecase"
 	"album-server/util"
-	"encoding/json"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -17,20 +16,12 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	taggedImageUsecase := usecase.NewTaggedImageUsecase()
 
-	headers := map[string]string{"Access-Control-Allow-Origin": "*"}
 	response, err := taggedImageUsecase.ListByTagNames(*userName, tagSlice)
 	if err != nil {
-		return events.APIGatewayProxyResponse{
-			Headers: headers,
-		}, err
+		return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
 	}
 
-	jsonBytes, _ := json.Marshal(response)
-	return events.APIGatewayProxyResponse{
-		Headers:    headers,
-		Body:       string(jsonBytes),
-		StatusCode: 200,
-	}, nil
+	return util.CreateOKResponse(response)
 }
 
 func main() {
