@@ -9,7 +9,7 @@ import (
 )
 
 func GetUsernameFromHeader(request events.APIGatewayProxyRequest) (*string, error) {
-	idToken := request.Headers["Authorization"]
+	idToken := request.Headers["x-authorization"]
 	sections := strings.Split(idToken, ".")
 	payload := sections[1]
 	decoded, error := base64.RawStdEncoding.DecodeString(payload)

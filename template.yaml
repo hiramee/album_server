@@ -14,9 +14,11 @@ Globals:
         AlbumApiAuthorizer:
           UserPoolArn: !Sub "arn:aws:cognito-idp:ap-northeast-1:${AWS::AccountId}:userpool/${AWS::Region}_azc25x1AV"
           AuthType: "COGNITO_USER_POOLS"
+          Identity:
+            Header: x-authorization
     Cors:
       AllowMethods: "'POST, GET, DELETE, PUT'"
-      AllowHeaders: "'access-control-allow-origin,content-type,Authorization'"
+      AllowHeaders: "'access-control-allow-origin,content-type,x-authorization'"
       AllowOrigin: "'*'"
 Resources:
   AlbumApi:
@@ -171,10 +173,103 @@ Resources:
     DeletionPolicy: Delete
     Properties:
       BucketName: album-file-bucket
+  hostingBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: album.hiramengo.com
+      WebsiteConfiguration:
+        IndexDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: False
+        BlockPublicPolicy: False
+        IgnorePublicAcls: False
+        RestrictPublicBuckets: False
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - HEAD
+              - GET
+            AllowedOrigins:
+              - https://album.hiramengo.com
+  hostingPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: hostingBucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - "s3:GetObject"
+            Effect: Allow
+            Resource:
+              "Fn::Join":
+                - ""
+                - - "arn:aws:s3:::"
+                  - Ref: hostingBucket
+                  - /*
+            Principal: "*"
+  distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - album.hiramengo.com
+        CacheBehaviors:
+          - AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
+            PathPattern: /Prod/*
+            TargetOriginId: API-album
+            CachePolicyId: !Ref CachePolicyForAlbumApi
+            ViewerProtocolPolicy: redirect-to-https
+        DefaultCacheBehavior:
+          TargetOriginId: S3-album
+          CachePolicyId: "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+          ViewerProtocolPolicy: "redirect-to-https"
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - DomainName: !Join ["", [Ref: hostingBucket, ".s3.amazonaws.com"]]
+            Id: S3-album
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+          - DomainName: !Sub "${AlbumApi}.execute-api.${AWS::Region}.amazonaws.com"
+            Id: API-album
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+        ViewerCertificate:
+          AcmCertificateArn: arn:aws:acm:us-east-1:604249547216:certificate/8dc3bcf7-285d-48e4-86f2-8f602aa35857
+          SslSupportMethod: sni-only
+  CachePolicyForAlbumApi:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        DefaultTTL: 1
+        MaxTTL: 1
+        MinTTL: 1
+        Name: CachePolicyForAlbumApi
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          EnableAcceptEncodingGzip: true
+          EnableAcceptEncodingBrotli: true
+          HeadersConfig:
+            HeaderBehavior: whitelist
+            Headers:
+              - x-authorization
+          QueryStringsConfig:
+            QueryStringBehavior: all
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   ListTagsFunction:
     Description: "ListTagsFunction ARN"
     Value: !GetAtt ListTagsFunction.Arn
