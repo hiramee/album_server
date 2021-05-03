@@ -124,6 +124,36 @@ Resources:
             Path: /pictures/{id}
             Method: Delete
             RestApiId: !Ref AlbumApi
+  ListTagsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ListTagsFunction}
+      RetentionInDays: 14
+  DeleteTagsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${DeleteTagsFunction}
+      RetentionInDays: 14
+  PostPictureFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${PostPictureFunction}
+      RetentionInDays: 14
+  ListPicturesFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ListPicturesFunction}
+      RetentionInDays: 14
+  PutPictureFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${PutPictureFunction}
+      RetentionInDays: 14
+  DeletePictureFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${DeletePictureFunction}
+      RetentionInDays: 14
   tagTable:
     Type: AWS::DynamoDB::Table
     Properties:
