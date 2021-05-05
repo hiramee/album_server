@@ -15,10 +15,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GetTagsResponse"
-            application/xml:
-              schema:
-                type: object
-                properties: {}
         "400":
           description: Bad Request
       description: Get all tags
@@ -84,6 +80,18 @@ paths:
         name: id
         in: path
         required: true
+    get:
+      summary: GetPicture
+      operationId: get-pictures-id
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetPictureResponse"
+        "400":
+          description: Bad Request
     delete:
       summary: PutPicture
       operationId: delete-pictures-id
@@ -166,15 +174,19 @@ components:
           description: List of tags
           items:
             type: string
-        picture:
-          type: string
-          description: Base64encoded picture
         fileName:
           type: string
           description: fileName
         id:
           type: string
           description: ID
+    GetPictureResponse:
+      title: GetPictureResponse
+      type: object
+      properties:
+        picture:
+          type: string
+          description: Base64encoded picture
     PutPictureRequest:
       title: PutPictureRequest
       type: object

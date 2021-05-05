@@ -60,7 +60,6 @@ func (usecase *TaggedImageUsecase) ListByTagNames(userName string, tagNameSlice 
 	for i, e := range taggedImages {
 		prefixCount := utf8.RuneCountInString(userName) + 1 // userName/fileName => fileName
 		fileName := string([]rune(e.ObjectKey)[prefixCount:])
-		data, err := usecase.s3Repo.Download(e.ObjectKey)
 		if err != nil {
 			return nil, err
 		}
@@ -69,11 +68,9 @@ func (usecase *TaggedImageUsecase) ListByTagNames(userName string, tagNameSlice 
 			tags[itag] = etag
 		}
 		id := e.ID
-		dataStr := base64.StdEncoding.EncodeToString(data)
 		picturesResponseItem[i].Id = &id
 		picturesResponseItem[i].FileName = &fileName
 		picturesResponseItem[i].Tags = &tags
-		picturesResponseItem[i].Picture = &dataStr
 	}
 	response.Pictures = &picturesResponseItem
 
@@ -166,4 +163,25 @@ func unique(a []string) []string {
 		}
 	}
 	return uniqueSlice
+}
+
+func (usecase *TaggedImageUsecase) GetById(id string, userName string) (*openapi.GetPictureResponse, error) {
+	response := new(openapi.GetPictureResponse)
+	current, err := usecase.repo.ListAllById(id, userName)
+	if err != nil {
+		return nil, err
+	}
+	if len(current) == 0 {
+		return nil, errors.New("File already deleted")
+	}
+	objectKey := current[0].ObjectKey
+
+	data, err := usecase.s3Repo.Download(objectKey)
+	if err != nil {
+		return nil, err
+	}
+	dataStr := base64.StdEncoding.EncodeToString(data)
+	response.Picture = &dataStr
+
+	return response, nil
 }
