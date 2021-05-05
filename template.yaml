@@ -81,7 +81,6 @@ Resources:
       Handler: listPictures
       Policies:
         - arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess
-        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
       Runtime: go1.x
       Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
       Events:
@@ -89,6 +88,23 @@ Resources:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /pictures
+            Method: GET
+            RestApiId: !Ref AlbumApi
+  GetPictureFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: application/GetPicture
+      Handler: getPicture
+      Policies:
+        - arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+      Runtime: go1.x
+      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Events:
+        CatchAll:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /pictures/{id}
             Method: GET
             RestApiId: !Ref AlbumApi
   PutPictureFunction:
@@ -143,6 +159,11 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub /aws/lambda/${ListPicturesFunction}
+      RetentionInDays: 14
+  GetPictureFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${GetPictureFunction}
       RetentionInDays: 14
   PutPictureFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -324,6 +345,12 @@ Outputs:
   ListPicturesFunctionIamRole:
     Description: "Implicit IAM Role created for ListPicturesFunction"
     Value: !GetAtt ListPicturesFunctionRole.Arn
+  GetPictureFunction:
+    Description: "GetPictureFunction ARN"
+    Value: !GetAtt GetPictureFunction.Arn
+  GetPictureFunctionIamRole:
+    Description: "Implicit IAM Role created for GetPictureFunction"
+    Value: !GetAtt GetPictureFunctionRole.Arn
   PutPictureFunction:
     Description: "PutPictureFunction ARN"
     Value: !GetAtt PutPictureFunction.Arn
