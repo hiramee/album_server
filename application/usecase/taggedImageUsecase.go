@@ -88,7 +88,7 @@ func (usecase *TaggedImageUsecase) UpdateTaggedImage(userName string, id string,
 	currentTagNames := make([]string, len(current))
 	for i, e := range current {
 		objectKey = e.ObjectKey
-		prefixCount := utf8.RuneCountInString(userName) + 1 // userName/fileName => fileName
+		prefixCount := utf8.RuneCountInString(userName) // userNameTagName => TagName
 		currentTagNames[i] = string([]rune(e.UserTagName)[prefixCount:])
 	}
 	deleteTarget := util.GetTwoSliceDiff(currentTagNames, tagNames)
@@ -143,7 +143,7 @@ func (usecase *TaggedImageUsecase) GetTaggedImageById(id string, userName string
 		return nil, err
 	}
 	if len(current) == 0 {
-		return nil, errors.New("File already deleted")
+		return nil, errors.New("file already deleted")
 	}
 	objectKey := current[0].ObjectKey
 
