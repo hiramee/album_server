@@ -23,7 +23,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	if err != nil {
 		return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
 	} else if len(usedTags) != 0 {
-		message := "Some Tags are now used. Tags:"
+		message := "some tags are now used. tags: "
 		for _, e := range usedTags {
 			message += e + " "
 		}
@@ -31,7 +31,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 
 	tagUsecase := usecase.NewTagUsecase()
-	tagUsecase.Delete(*userName, *req.Tags)
+	tagUsecase.DeleteTag(*userName, *req.Tags)
 
 	return util.CreateOKResponse(nil)
 }

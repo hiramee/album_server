@@ -20,7 +20,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 
 	tagUsecase := usecase.NewTagUsecase()
-	if err := tagUsecase.CreateIfAbsent(*userName, req.Tags); err != nil {
+	if err := tagUsecase.SaveTagIfAbsent(*userName, req.Tags); err != nil {
 		return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
 	}
 	taggedImageUsecase := usecase.NewTaggedImageUsecase()
@@ -28,7 +28,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	if err != nil {
 		return util.CreateErrorResponse(nil, util.APPLICATION_ERROR, err)
 	}
-	taggedImageUsecase.Create(*userName, req.Tags, req.Ext, decoded)
+	taggedImageUsecase.SaveTaggedImage(*userName, req.Tags, req.Ext, decoded)
 
 	return util.CreateOKResponse(nil)
 }

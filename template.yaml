@@ -226,11 +226,6 @@ Resources:
       BucketName: album.hiramengo.com
       WebsiteConfiguration:
         IndexDocument: index.html
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: False
-        BlockPublicPolicy: False
-        IgnorePublicAcls: False
-        RestrictPublicBuckets: False
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders:

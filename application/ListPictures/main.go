@@ -16,7 +16,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	taggedImageUsecase := usecase.NewTaggedImageUsecase()
 
-	response, err := taggedImageUsecase.ListByTagNames(*userName, tagSlice)
+	response, err := taggedImageUsecase.ListTaggedImageByTagNames(*userName, tagSlice)
 	if err != nil {
 		return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
 	}

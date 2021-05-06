@@ -14,12 +14,12 @@ type S3FileRepository struct {
 	bucketName string
 }
 
-func NewS3FileRepository() *S3FileRepository {
+func NewS3FileRepository(region string, bucketName string) *S3FileRepository {
 	sess := session.Must(session.NewSession())
-	cli := s3.New(sess, aws.NewConfig().WithRegion("ap-northeast-1"))
+	cli := s3.New(sess, aws.NewConfig().WithRegion(region))
 	repo := new(S3FileRepository)
 	repo.cli = cli
-	repo.bucketName = "album-file-bucket" // TODO 切り出す
+	repo.bucketName = bucketName
 	return repo
 }
 

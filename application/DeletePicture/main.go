@@ -13,7 +13,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	id := request.PathParameters["id"]
 
 	taggedImageUsecase := usecase.NewTaggedImageUsecase()
-	taggedImageUsecase.Delete(*userName, id)
+	taggedImageUsecase.DeleteTaggedImage(*userName, id)
 
 	return util.CreateOKResponse(nil)
 }

@@ -1,65 +1,29 @@
 package util
 
-import (
-	"encoding/base64"
-	"encoding/json"
-	"strings"
-
-	"github.com/aws/aws-lambda-go/events"
-)
-
-func GetUsernameFromHeader(request events.APIGatewayProxyRequest) (*string, error) {
-	idToken := request.Headers["x-authorization"]
-	sections := strings.Split(idToken, ".")
-	payload := sections[1]
-	decoded, error := base64.RawStdEncoding.DecodeString(payload)
-	if error != nil {
-		return nil, error
+func GetTwoSliceDiff(a []string, b []string) []string {
+	amap := make(map[string]bool)
+	for _, e := range a {
+		if !amap[e] {
+			amap[e] = true
+		}
 	}
-	claim := new(Claim)
-	json.Unmarshal(decoded, claim)
-	return &claim.UserName, nil
+	var diff []string
+	for _, e := range b {
+		if !amap[e] {
+			diff = append(diff, e)
+		}
+	}
+	return diff
 }
 
-type Claim struct {
-	UserName string `json:"cognito:username"`
-}
-
-func CreateOKResponse(response interface{}) (events.APIGatewayProxyResponse, error) {
-	if response == nil {
-		return events.APIGatewayProxyResponse{
-			StatusCode: 200,
-		}, nil
+func GetUniqueSlice(a []string) []string {
+	amap := make(map[string]bool)
+	var uniqueSlice []string
+	for _, e := range a {
+		if !amap[e] {
+			uniqueSlice = append(uniqueSlice, e)
+			amap[e] = true
+		}
 	}
-	jsonBytes, err := json.Marshal(response)
-	if err != nil {
-		return events.APIGatewayProxyResponse{
-			Body:       "Create Response Failed",
-			StatusCode: 500,
-		}, err
-	}
-	return events.APIGatewayProxyResponse{
-		Body:       string(jsonBytes),
-		StatusCode: 200,
-	}, nil
-}
-
-func CreateErrorResponse(response interface{}, errorType ErrorType, err error) (events.APIGatewayProxyResponse, error) {
-	statusCode := GetStatusCodeByErrorType(errorType)
-	if response == nil {
-		return events.APIGatewayProxyResponse{
-			StatusCode: statusCode,
-		}, nil
-	}
-	jsonBytes, err := json.Marshal(response)
-	if err != nil {
-		return events.APIGatewayProxyResponse{
-			Body:       "Create Response Failed",
-			StatusCode: 500,
-		}, err
-	}
-	return events.APIGatewayProxyResponse{
-		Body:       string(jsonBytes),
-		StatusCode: statusCode,
-	}, nil
+	return uniqueSlice
 }

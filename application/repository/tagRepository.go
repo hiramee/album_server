@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"album-server/consts"
 	"album-server/domain"
 	"fmt"
 
@@ -22,7 +23,7 @@ func NewTagRepository() *TagRepository {
 		sess, err = session.NewSession()
 		fmt.Print(err)
 	}
-	db := dynamo.New(sess, &aws.Config{Region: aws.String("ap-northeast-1")})
+	db := dynamo.New(sess, &aws.Config{Region: aws.String(consts.Region)})
 	table := db.Table("Tag")
 	repo := new(TagRepository)
 	repo.table = &table
