@@ -92,3 +92,4 @@ type PutPicturesIdJSONRequestBody PutPicturesIdJSONBody
 
 // PostTagsDeleteJSONRequestBody defines body for PostTagsDelete for application/json ContentType.
 type PostTagsDeleteJSONRequestBody PostTagsDeleteJSONBody
+
