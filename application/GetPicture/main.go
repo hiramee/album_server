@@ -11,15 +11,24 @@ import (
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	userName, _ := util.GetUsernameFromHeader(request)
 	id := request.PathParameters["id"]
+	thumbNail := request.QueryStringParameters["thumbnail"]
 
 	taggedImageUsecase := usecase.NewTaggedImageUsecase()
 
-	response, err := taggedImageUsecase.GetTaggedImageById(id, *userName)
-	if err != nil {
-		return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
+	if thumbNail == "true" {
+		response, err := taggedImageUsecase.GetThumbNailImageById(id, *userName)
+		if err != nil {
+			return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
+		}
+		return util.CreateOKResponse(response)
+	} else {
+		response, err := taggedImageUsecase.GetImageById(id, *userName)
+		if err != nil {
+			return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
+		}
+		return util.CreateOKResponse(response)
 	}
 
-	return util.CreateOKResponse(response)
 }
 
 func main() {

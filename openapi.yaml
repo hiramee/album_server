@@ -81,6 +81,13 @@ paths:
         in: path
         required: true
     get:
+      parameters:
+        - schema:
+            type: boolean
+          name: thumbnail
+          in: query
+          required: false
+          description: true if getting thumbNail
       summary: GetPicture
       operationId: get-pictures-id
       responses:

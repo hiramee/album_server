@@ -69,6 +69,7 @@ Resources:
             Path: /pictures
             Method: POST
             RestApiId: !Ref AlbumApi
+      MemorySize: 512
   ListPicturesFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -102,6 +103,7 @@ Resources:
             Path: /pictures/{id}
             Method: GET
             RestApiId: !Ref AlbumApi
+      MemorySize: 256
   PutPictureFunction:
     Type: AWS::Serverless::Function
     Properties:

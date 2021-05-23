@@ -78,6 +78,13 @@ type GetPicturesParams struct {
 // PostPicturesJSONBody defines parameters for PostPictures.
 type PostPicturesJSONBody PostPicturesRequest
 
+// GetPicturesIdParams defines parameters for GetPicturesId.
+type GetPicturesIdParams struct {
+
+	// true if getting thumbNail
+	Thumbnail *bool `json:"thumbnail,omitempty"`
+}
+
 // PutPicturesIdJSONBody defines parameters for PutPicturesId.
 type PutPicturesIdJSONBody PutPictureRequest
 

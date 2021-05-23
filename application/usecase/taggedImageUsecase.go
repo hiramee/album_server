@@ -6,11 +6,18 @@ import (
 	"album-server/domain"
 	"album-server/openapi"
 	"album-server/util"
+	"bytes"
 	"encoding/base64"
 	"errors"
+	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	"image/png"
+	_ "image/png"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"golang.org/x/image/draw"
 )
 
 type TaggedImageUsecase struct {
@@ -32,11 +39,23 @@ func (usecase *TaggedImageUsecase) SaveTaggedImage(userName string, tagNames []s
 		return err
 	}
 	objectKey := userName + "/" + uuid + "." + ext
-	slice := domain.NewTaggedImageSlice(userName, tagNames, uuid, objectKey)
+	uuid, err = usecase.uuid()
+	if err != nil {
+		return err
+	}
+	thumbNailObjectKey := userName + "/" + uuid + "." + ext
+	slice := domain.NewTaggedImageSlice(userName, tagNames, uuid, objectKey, thumbNailObjectKey)
 	if err := usecase.repo.BatchUpdate(slice); err != nil {
 		return err
 	}
 	if err := usecase.s3Repo.Upload(objectKey, data); err != nil {
+		return err
+	}
+	var thumbNail *[]byte
+	if thumbNail, err = createThumbNailData(&data); err != nil {
+		return err
+	}
+	if err := usecase.s3Repo.Upload(thumbNailObjectKey, *thumbNail); err != nil {
 		return err
 	}
 	return nil
@@ -85,9 +104,11 @@ func (usecase *TaggedImageUsecase) UpdateTaggedImage(userName string, id string,
 		return errors.New("file already deleted")
 	}
 	var objectKey string
+	var thumbNailObjectKey string
 	currentTagNames := make([]string, len(current))
 	for i, e := range current {
 		objectKey = e.ObjectKey
+		thumbNailObjectKey = e.ThumbNailObjectKey
 		prefixCount := utf8.RuneCountInString(userName) // userNameTagName => TagName
 		currentTagNames[i] = string([]rune(e.UserTagName)[prefixCount:])
 	}
@@ -95,7 +116,7 @@ func (usecase *TaggedImageUsecase) UpdateTaggedImage(userName string, id string,
 	if err := usecase.repo.BatchDelete(id, userName, deleteTarget); err != nil {
 		return err
 	}
-	if err := usecase.repo.BatchUpdate(domain.NewTaggedImageSlice(userName, tagNames, id, objectKey)); err != nil {
+	if err := usecase.repo.BatchUpdate(domain.NewTaggedImageSlice(userName, tagNames, id, objectKey, thumbNailObjectKey)); err != nil {
 		return err
 	}
 	return nil
@@ -115,6 +136,10 @@ func (usecase *TaggedImageUsecase) DeleteTaggedImage(userName string, id string)
 	}
 	objectKey := current[0].ObjectKey
 	if err := usecase.s3Repo.Delete(objectKey); err != nil {
+		return err
+	}
+	thumbNailObjectKey := current[0].ThumbNailObjectKey
+	if err := usecase.s3Repo.Delete(thumbNailObjectKey); err != nil {
 		return err
 	}
 	return nil
@@ -137,7 +162,7 @@ func (usecase *TaggedImageUsecase) ValidateDeleteTags(userName string, tagNameSl
 	return uniqueUsedTags, nil
 }
 
-func (usecase *TaggedImageUsecase) GetTaggedImageById(id string, userName string) (*openapi.GetPictureResponse, error) {
+func (usecase *TaggedImageUsecase) GetImageById(id string, userName string) (*openapi.GetPictureResponse, error) {
 	current, err := usecase.repo.ListAllById(id, userName)
 	if err != nil {
 		return nil, err
@@ -156,4 +181,49 @@ func (usecase *TaggedImageUsecase) GetTaggedImageById(id string, userName string
 	response.Picture = &dataStr
 
 	return response, nil
+}
+
+func (usecase *TaggedImageUsecase) GetThumbNailImageById(id string, userName string) (*openapi.GetPictureResponse, error) {
+	current, err := usecase.repo.ListAllById(id, userName)
+	if err != nil {
+		return nil, err
+	}
+	if len(current) == 0 {
+		return nil, errors.New("file already deleted")
+	}
+	objectKey := current[0].ThumbNailObjectKey
+
+	data, err := usecase.s3Repo.Download(objectKey)
+	if err != nil {
+		return nil, err
+	}
+	dataStr := base64.StdEncoding.EncodeToString(data)
+	response := new(openapi.GetPictureResponse)
+	response.Picture = &dataStr
+
+	return response, nil
+}
+
+// Create png image whose width is 256
+func createThumbNailData(src *[]byte) (*[]byte, error) {
+	img, _, err := image.Decode(bytes.NewBuffer(*src))
+
+	if err != nil {
+		println(err)
+		return nil, errors.New("unsupported image type")
+	}
+	width := 256
+	aspectRatio := float64(img.Bounds().Dy()) / float64(img.Bounds().Dx())
+	height := int(float64(width) * aspectRatio)
+	imgDst := image.NewRGBA(image.Rect(0, 0, width, height))
+	draw.CatmullRom.Scale(imgDst, imgDst.Bounds(), img, img.Bounds(), draw.Over, nil)
+
+	var buff []byte
+	output := bytes.NewBuffer(buff)
+	if err := png.Encode(output, imgDst); err != nil {
+		println(err)
+		return nil, errors.New("saving image failed")
+	}
+	thumbNail := output.Bytes()
+	return &thumbNail, nil
 }

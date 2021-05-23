@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/guregu/dynamo v1.10.2
 	github.com/pelletier/go-toml v1.9.0 // indirect
+	golang.org/x/image v0.0.0-20210504121937-7319ad40d33e
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
 	golang.org/x/sys v0.0.0-20210403161142-5e06dd20ab57 // indirect
 	golang.org/x/text v0.3.6 // indirect
