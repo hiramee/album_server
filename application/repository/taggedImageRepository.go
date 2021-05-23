@@ -80,8 +80,10 @@ func (repo *TaggedImageRepository) BatchGet(userName string, tagNames []string) 
 			return nil, err
 		}
 		for _, e := range results {
-			if _, ok := idKeyImageMap[e.ID]; !ok {
-				idKeyImageMap[e.ID] = e
+			if hasAllTags(tagNames, e.Tags) {
+				if _, ok := idKeyImageMap[e.ID]; !ok {
+					idKeyImageMap[e.ID] = e
+				}
 			}
 		}
 	}
@@ -90,6 +92,21 @@ func (repo *TaggedImageRepository) BatchGet(userName string, tagNames []string) 
 		response = append(response, e)
 	}
 	return response, nil
+}
+
+func hasAllTags(tags []string, tested []string) bool {
+	tagKeyMap := make(map[string]bool)
+	for _, e := range tested {
+		if _, has := tagKeyMap[e]; !has {
+			tagKeyMap[e] = true
+		}
+	}
+	for _, e := range tags {
+		if _, has := tagKeyMap[e]; !has {
+			return false
+		}
+	}
+	return true
 }
 
 func (repo *TaggedImageRepository) BatchDelete(id string, userName string, tags []string) error {
