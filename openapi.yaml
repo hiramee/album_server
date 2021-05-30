@@ -194,6 +194,9 @@ components:
         picture:
           type: string
           description: Base64encoded picture
+        fileName:
+          type: string
+          description: fileName
     PutPictureRequest:
       title: PutPictureRequest
       type: object

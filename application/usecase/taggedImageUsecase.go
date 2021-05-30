@@ -14,7 +14,6 @@ import (
 	_ "image/jpeg"
 	"image/png"
 	_ "image/png"
-	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"golang.org/x/image/draw"
@@ -43,7 +42,7 @@ func (usecase *TaggedImageUsecase) SaveTaggedImage(userName string, tagNames []s
 	if err != nil {
 		return err
 	}
-	thumbNailObjectKey := userName + "/" + uuid + "." + ext
+	thumbNailObjectKey := userName + "/" + uuid + "." + "png"
 	slice := domain.NewTaggedImageSlice(userName, tagNames, uuid, objectKey, thumbNailObjectKey)
 	if err := usecase.repo.BatchUpdate(slice); err != nil {
 		return err
@@ -76,8 +75,7 @@ func (usecase *TaggedImageUsecase) ListTaggedImageByTagNames(userName string, ta
 	}
 	picturesResponseItem := make([]openapi.PicturesResponseItem, len(taggedImages))
 	for i, e := range taggedImages {
-		prefixCount := utf8.RuneCountInString(userName) + 1 // userName/fileName => fileName
-		fileName := string([]rune(e.ObjectKey)[prefixCount:])
+		fileName := util.TrimPrefixFromString(&e.ObjectKey, &userName) // userName/fileName => fileName
 		if err != nil {
 			return nil, err
 		}
@@ -87,7 +85,7 @@ func (usecase *TaggedImageUsecase) ListTaggedImageByTagNames(userName string, ta
 		}
 		id := e.ID
 		picturesResponseItem[i].Id = &id
-		picturesResponseItem[i].FileName = &fileName
+		picturesResponseItem[i].FileName = fileName
 		picturesResponseItem[i].Tags = &tags
 	}
 	response := new(openapi.GetPicturesResponse)
@@ -109,8 +107,7 @@ func (usecase *TaggedImageUsecase) UpdateTaggedImage(userName string, id string,
 	for i, e := range current {
 		objectKey = e.ObjectKey
 		thumbNailObjectKey = e.ThumbNailObjectKey
-		prefixCount := utf8.RuneCountInString(userName) // userNameTagName => TagName
-		currentTagNames[i] = string([]rune(e.UserTagName)[prefixCount:])
+		currentTagNames[i] = *util.TrimPrefixFromString(&e.UserTagName, &userName) // userNameTagName => TagName
 	}
 	deleteTarget := util.GetTwoSliceDiff(currentTagNames, tagNames)
 	if err := usecase.repo.BatchDelete(id, userName, deleteTarget); err != nil {
@@ -179,6 +176,8 @@ func (usecase *TaggedImageUsecase) GetImageById(id string, userName string) (*op
 	dataStr := base64.StdEncoding.EncodeToString(data)
 	response := new(openapi.GetPictureResponse)
 	response.Picture = &dataStr
+	fileName := util.TrimPrefixFromString(&current[0].ObjectKey, &userName)
+	response.FileName = fileName
 
 	return response, nil
 }
@@ -200,7 +199,8 @@ func (usecase *TaggedImageUsecase) GetThumbNailImageById(id string, userName str
 	dataStr := base64.StdEncoding.EncodeToString(data)
 	response := new(openapi.GetPictureResponse)
 	response.Picture = &dataStr
-
+	fileName := util.TrimPrefixFromString(&objectKey, &userName)
+	response.FileName = fileName
 	return response, nil
 }
 

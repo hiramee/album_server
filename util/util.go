@@ -1,5 +1,7 @@
 package util
 
+import "unicode/utf8"
+
 func GetTwoSliceDiff(a []string, b []string) []string {
 	bmap := make(map[string]bool)
 	for _, e := range b {
@@ -26,4 +28,14 @@ func GetUniqueSlice(a []string) []string {
 		}
 	}
 	return uniqueSlice
+}
+
+// get XXX from prefix/XXX
+func TrimPrefixFromString(str *string, prefix *string) *string {
+	if len(*prefix) >= len(*str) {
+		return str // cannot trim prefix
+	}
+	prefixCount := utf8.RuneCountInString(*prefix) + 1 // userName/fileName => fileName
+	fileName := string([]rune(*str)[prefixCount:])
+	return &fileName
 }

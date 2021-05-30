@@ -17,6 +17,9 @@ type DeleteTagsRequest struct {
 // GetPictureResponse defines model for GetPictureResponse.
 type GetPictureResponse struct {
 
+	// fileName
+	FileName *string `json:"fileName,omitempty"`
+
 	// Base64encoded picture
 	Picture *string `json:"picture,omitempty"`
 }

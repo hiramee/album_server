@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -22,6 +23,14 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
 	}
 
+	switch req.Ext {
+	case "jpg", "JPG":
+		req.Ext = "jpeg"
+	case "jpeg", "JPEG", "png", "PNG", "gif", "GIF":
+		req.Ext = strings.ToLower(req.Ext)
+	default:
+		return util.CreateErrorResponse("unsupported file type", util.APPLICATION_ERROR, fmt.Errorf("unsupported file type : %s", req.Ext))
+	}
 	decoded, err := base64.StdEncoding.DecodeString(req.Picture)
 	if err != nil {
 		return util.CreateErrorResponse(nil, util.APPLICATION_ERROR, err)
