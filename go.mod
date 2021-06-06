@@ -15,4 +15,4 @@ require (
 
 module album-server
 
-go 1.14
+go 1.16
