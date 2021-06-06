@@ -1,25 +1,74 @@
 package util
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
-func TestTrimPrefixFromString1(t *testing.T) {
-	prefix := "hoge"
-	str := "hoge/fuga"
-	if *TrimPrefixFromString(&str, &prefix) != "fuga" {
-		t.Fatal("failed test")
+// Test struct for TrimPrefixFromString.
+type TrimPrefixFromStringTest struct {
+	str      string
+	prefix   string
+	expected string
+}
+
+var trimPrefixFromString = []TrimPrefixFromStringTest{
+	{"hoge/fuga", "hoge", "fuga"},
+	{"hoge/", "hoge", ""},
+	{"hoge", "hoge", "hoge"},
+}
+
+func TestTrimPrefixFromString(t *testing.T) {
+	for i, test := range trimPrefixFromString {
+		actual := *TrimPrefixFromString(&test.str, &test.prefix)
+		if actual != test.expected {
+			t.Errorf("#%d got: %#v want: %#v", i, actual, test.expected)
+		}
 	}
 }
-func TestTrimPrefixFromStringToBlank(t *testing.T) {
-	prefix := "hoge"
-	str := "hoge/"
-	if *TrimPrefixFromString(&str, &prefix) != "" {
-		t.Fatal("failed test")
+
+// Test struct for GenerateTwoSliceDiff.
+type GenerateTwoSliceDiffTest struct {
+	amap     []string
+	bmap     []string
+	expected []string
+}
+
+var generateTwoSliceDiffSlice = []GenerateTwoSliceDiffTest{
+	{[]string{"a"}, []string{"a"}, nil},
+	{[]string{"a", "b"}, []string{"b"}, []string{"a"}},
+	{nil, []string{"b"}, nil},
+	{[]string{"a"}, nil, []string{"a"}},
+	{nil, nil, nil},
+}
+
+func TestGenerateTwoSliceDiff(t *testing.T) {
+	for i, test := range generateTwoSliceDiffSlice {
+		actual := GenerateTwoSliceDiff(test.amap, test.bmap)
+		if !reflect.DeepEqual(actual, test.expected) {
+			t.Errorf("#%d got: %#v want: %#v", i, actual, test.expected)
+		}
 	}
 }
-func TestTrimPrefixFromStringFail(t *testing.T) {
-	prefix := "hoge"
-	str := "hoge"
-	if *TrimPrefixFromString(&str, &prefix) != str {
-		t.Fatal("failed test")
+
+// Test struct for GenerateTwoSliceDiff.
+type GenerateUniqueSliceTest struct {
+	org      []string
+	expected []string
+}
+
+var generateUniqueSlice = []GenerateUniqueSliceTest{
+	{[]string{"a"}, []string{"a"}},
+	{[]string{"a", "a"}, []string{"a"}},
+	{[]string{"a", "b", "b", "a"}, []string{"a", "b"}},
+	{nil, nil},
+}
+
+func TestGenerateUniqueSlice(t *testing.T) {
+	for i, test := range generateUniqueSlice {
+		actual := GenerateUniqueSlice(test.org)
+		if !reflect.DeepEqual(actual, test.expected) {
+			t.Errorf("#%d got: %#v want: %#v", i, actual, test.expected)
+		}
 	}
 }

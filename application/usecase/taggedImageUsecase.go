@@ -109,7 +109,7 @@ func (usecase *TaggedImageUsecase) UpdateTaggedImage(userName string, id string,
 		thumbNailObjectKey = e.ThumbNailObjectKey
 		currentTagNames[i] = *util.TrimPrefixFromString(&e.UserTagName, &userName) // userNameTagName => TagName
 	}
-	deleteTarget := util.GetTwoSliceDiff(currentTagNames, tagNames)
+	deleteTarget := util.GenerateTwoSliceDiff(currentTagNames, tagNames)
 	if err := usecase.repo.BatchDelete(id, userName, deleteTarget); err != nil {
 		return err
 	}
@@ -125,7 +125,7 @@ func (usecase *TaggedImageUsecase) DeleteTaggedImage(userName string, id string)
 		return err
 	}
 	if len(current) == 0 {
-		return errors.New("file is already deleted")
+		return errors.New("file already deleted")
 	}
 	tags := current[0].Tags
 	if err := usecase.repo.BatchDelete(id, userName, tags); err != nil {
@@ -154,7 +154,7 @@ func (usecase *TaggedImageUsecase) ValidateDeleteTags(userName string, tagNameSl
 	for _, e := range taggedImages {
 		usedTags = append(usedTags, e.Tags...)
 	}
-	uniqueUsedTags := util.GetUniqueSlice(usedTags)
+	uniqueUsedTags := util.GenerateUniqueSlice(usedTags)
 
 	return uniqueUsedTags, nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
+// GetUsernameFromHeader gets username from a header of APIGatewayProxyRequest.
 func GetUsernameFromHeader(request events.APIGatewayProxyRequest) (*string, error) {
 	idToken := request.Headers["x-authorization"]
 	sections := strings.Split(idToken, ".")
