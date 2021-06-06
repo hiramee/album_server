@@ -1,6 +1,7 @@
-package util
+package test
 
 import (
+	"album-server/util"
 	"reflect"
 	"testing"
 )
@@ -20,7 +21,7 @@ var trimPrefixFromString = []TrimPrefixFromStringTest{
 
 func TestTrimPrefixFromString(t *testing.T) {
 	for i, test := range trimPrefixFromString {
-		actual := *TrimPrefixFromString(&test.str, &test.prefix)
+		actual := *util.TrimPrefixFromString(&test.str, &test.prefix)
 		if actual != test.expected {
 			t.Errorf("#%d got: %#v want: %#v", i, actual, test.expected)
 		}
@@ -44,7 +45,7 @@ var generateTwoSliceDiffSlice = []GenerateTwoSliceDiffTest{
 
 func TestGenerateTwoSliceDiff(t *testing.T) {
 	for i, test := range generateTwoSliceDiffSlice {
-		actual := GenerateTwoSliceDiff(test.amap, test.bmap)
+		actual := util.GenerateTwoSliceDiff(test.amap, test.bmap)
 		if !reflect.DeepEqual(actual, test.expected) {
 			t.Errorf("#%d got: %#v want: %#v", i, actual, test.expected)
 		}
@@ -66,7 +67,7 @@ var generateUniqueSlice = []GenerateUniqueSliceTest{
 
 func TestGenerateUniqueSlice(t *testing.T) {
 	for i, test := range generateUniqueSlice {
-		actual := GenerateUniqueSlice(test.org)
+		actual := util.GenerateUniqueSlice(test.org)
 		if !reflect.DeepEqual(actual, test.expected) {
 			t.Errorf("#%d got: %#v want: %#v", i, actual, test.expected)
 		}
