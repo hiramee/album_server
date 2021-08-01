@@ -11,8 +11,8 @@ import (
 	"errors"
 	"image"
 	_ "image/gif"
+	"image/jpeg"
 	_ "image/jpeg"
-	"image/png"
 	_ "image/png"
 
 	"github.com/google/uuid"
@@ -42,7 +42,7 @@ func (usecase *TaggedImageUsecase) SaveTaggedImage(userName string, tagNames []s
 	if err != nil {
 		return err
 	}
-	thumbNailObjectKey := userName + "/" + uuid + "." + "png"
+	thumbNailObjectKey := userName + "/" + uuid + "." + "jpeg"
 	slice := domain.NewTaggedImageSlice(userName, tagNames, uuid, objectKey, thumbNailObjectKey)
 	if err := usecase.repo.BatchUpdate(slice); err != nil {
 		return err
@@ -204,7 +204,7 @@ func (usecase *TaggedImageUsecase) GetThumbNailImageById(id string, userName str
 	return response, nil
 }
 
-// Create png image whose width is 256
+// Create jpeg image whose width is 256
 func createThumbNailData(src *[]byte) (*[]byte, error) {
 	img, _, err := image.Decode(bytes.NewBuffer(*src))
 
@@ -220,7 +220,7 @@ func createThumbNailData(src *[]byte) (*[]byte, error) {
 
 	var buff []byte
 	output := bytes.NewBuffer(buff)
-	if err := png.Encode(output, imgDst); err != nil {
+	if err := jpeg.Encode(output, imgDst, &jpeg.Options{Quality: 85}); err != nil {
 		println(err)
 		return nil, errors.New("saving image failed")
 	}
