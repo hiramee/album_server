@@ -7,6 +7,7 @@ import (
 	"album-server/openapi"
 	"album-server/util"
 	"bytes"
+	"context"
 	"encoding/base64"
 	"errors"
 	"image"
@@ -25,10 +26,10 @@ type TaggedImageUsecase struct {
 }
 
 // constructor
-func NewTaggedImageUsecase() *TaggedImageUsecase {
+func NewTaggedImageUsecase(ctx context.Context) *TaggedImageUsecase {
 	usecase := new(TaggedImageUsecase)
-	usecase.repo = repository.NewTaggedImageRepository()
-	usecase.s3Repo = repository.NewS3FileRepository(consts.Region, consts.AlbumFileBucket)
+	usecase.repo = repository.NewTaggedImageRepository(ctx)
+	usecase.s3Repo = repository.NewS3FileRepository(consts.Region, consts.AlbumFileBucket, ctx)
 	return usecase
 }
 
