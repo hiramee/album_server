@@ -36,10 +36,13 @@ func GenerateUniqueSlice(org []string) []string {
 
 // TrimPrefixFromString gets XXX from prefix/XXX
 func TrimPrefixFromString(str *string, prefix *string) *string {
-	if len(*prefix) >= len(*str) {
+	if len(*prefix) > len(*str) {
 		return str // cannot trim prefix
 	}
-	prefixCount := utf8.RuneCountInString(*prefix) + 1 // userName/fileName => fileName
+	prefixCount := utf8.RuneCountInString(*prefix)
+	if string([]rune(*str)[prefixCount:prefixCount+1]) == "/" {
+		prefixCount++
+	}
 	fileName := string([]rune(*str)[prefixCount:])
 	return &fileName
 }

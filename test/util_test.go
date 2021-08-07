@@ -15,8 +15,9 @@ type TrimPrefixFromStringTest struct {
 
 var trimPrefixFromString = []TrimPrefixFromStringTest{
 	{"hoge/fuga", "hoge", "fuga"},
+	{"hogefuga", "hoge", "fuga"},
 	{"hoge/", "hoge", ""},
-	{"hoge", "hoge", "hoge"},
+	{"hoge", "hoge", ""},
 }
 
 func TestTrimPrefixFromString(t *testing.T) {
