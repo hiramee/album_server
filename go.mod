@@ -1,6 +1,7 @@
 require (
 	github.com/aws/aws-lambda-go v1.13.3
 	github.com/aws/aws-sdk-go v1.36.19
+	github.com/aws/aws-xray-sdk-go v1.6.0
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/guregu/dynamo v1.10.2
