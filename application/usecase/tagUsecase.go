@@ -3,6 +3,7 @@ package usecase
 import (
 	"album-server/application/repository"
 	"album-server/domain"
+	"context"
 )
 
 type TagUsecase struct {
@@ -10,9 +11,9 @@ type TagUsecase struct {
 }
 
 // constructor
-func NewTagUsecase() *TagUsecase {
+func NewTagUsecase(ctx context.Context) *TagUsecase {
 	usecase := new(TagUsecase)
-	usecase.repo = repository.NewTagRepository()
+	usecase.repo = repository.NewTagRepository(ctx)
 	return usecase
 }
 

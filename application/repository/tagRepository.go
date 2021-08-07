@@ -1,21 +1,23 @@
 package repository
 
 import (
-	"album-server/consts"
 	"album-server/domain"
+	"context"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/guregu/dynamo"
 )
 
 type TagRepository struct {
 	table *dynamo.Table
+	ctx   context.Context
 }
 
 // constructor
-func NewTagRepository() *TagRepository {
+func NewTagRepository(ctx context.Context) *TagRepository {
 	sess, err := session.NewSession()
 	if err != nil {
 		// retry once
@@ -23,16 +25,20 @@ func NewTagRepository() *TagRepository {
 		sess, err = session.NewSession()
 		fmt.Print(err)
 	}
-	db := dynamo.New(sess, &aws.Config{Region: aws.String(consts.Region)})
+	dynamodb := dynamodb.New(sess)
+	xray.AWS(dynamodb.Client)
+	db := dynamo.NewFromIface(dynamodb)
+
 	table := db.Table("Tag")
 	repo := new(TagRepository)
 	repo.table = &table
+	repo.ctx = ctx
 	return repo
 }
 
 func (repo *TagRepository) ListAll(userName string) ([]domain.Tag, error) {
 	var results []domain.Tag
-	if err := repo.table.Get("UserName", userName).All(&results); err != nil {
+	if err := repo.table.Get("UserName", userName).AllWithContext(repo.ctx, &results); err != nil {
 		return nil, err
 	}
 	return results, nil
@@ -50,7 +56,7 @@ func (repo *TagRepository) BatchUpdate(domains []domain.Tag) error {
 		for i, e := range current {
 			items[i] = e
 		}
-		if _, err := repo.table.Batch("UserName", "TagName").Write().Put(items...).Run(); err != nil {
+		if _, err := repo.table.Batch("UserName", "TagName").Write().Put(items...).RunWithContext(repo.ctx); err != nil {
 			return err
 		}
 	}
@@ -69,7 +75,7 @@ func (repo *TagRepository) BatchDelete(userName string, tags []string) error {
 		for i, e := range current {
 			items[i] = dynamo.Keys{userName, e}
 		}
-		if _, err := repo.table.Batch("UserName", "TagName").Write().Delete(items...).Run(); err != nil {
+		if _, err := repo.table.Batch("UserName", "TagName").Write().Delete(items...).RunWithContext(repo.ctx); err != nil {
 			return err
 		}
 	}

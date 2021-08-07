@@ -4,13 +4,14 @@ import (
 	"album-server/application/usecase"
 	"album-server/openapi"
 	"album-server/util"
+	"context"
 	"encoding/json"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	userName, _ := util.GetUsernameFromHeader(request)
 	req := new(openapi.DeleteTagsRequest)
 
@@ -18,7 +19,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
 	}
 
-	taggedImageUsecase := usecase.NewTaggedImageUsecase()
+	taggedImageUsecase := usecase.NewTaggedImageUsecase(ctx)
 	usedTags, err := taggedImageUsecase.ValidateDeleteTags(*userName, *req.Tags)
 	if err != nil {
 		return util.CreateErrorResponse(nil, util.VALIDATION_ERROR, err)
@@ -30,7 +31,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return util.CreateErrorResponse(message, util.VALIDATION_ERROR, err)
 	}
 
-	tagUsecase := usecase.NewTagUsecase()
+	tagUsecase := usecase.NewTagUsecase(ctx)
 	tagUsecase.DeleteTag(*userName, *req.Tags)
 
 	return util.CreateOKResponse(nil)
