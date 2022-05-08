@@ -222,6 +222,15 @@ Resources:
     DeletionPolicy: Delete
     Properties:
       BucketName: album-file-bucket
+      LoggingConfiguration:
+        DestinationBucketName: !Ref logBucket
+        LogFilePrefix: album-file-logs
+  logBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: album-log
+      AccessControl: LogDeliveryWrite
   hostingBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
